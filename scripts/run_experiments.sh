@@ -40,7 +40,9 @@ SIZES=(
 )
 
 # P values: perfect squares required for MM-2D; P=1 is serial baseline only
-P_VALUES=(1 4 9 16 25 36 49)
+# Power-of-2 matrix sizes divide evenly into 4 and 16 but not 9/25/36/49,
+# so those are omitted to avoid expected ERROR rows in the CSV.
+P_VALUES=(1 4 16)
 
 # ============================================================
 # OUTPUT SETUP
@@ -61,8 +63,9 @@ is_perfect_square() {
 }
 
 extract_time() {
-    # Parses "TIME: 1.23456789" from program stdout
-    echo "$1" | grep -oP '(?<=TIME: )\S+' | head -1 || echo ""
+    # Parses "TIME: 1.23456789" from program stdout.
+    # Uses awk instead of grep -oP — macOS BSD grep does not support Perl regex (-P).
+    echo "$1" | awk '/TIME:/ { print $2; exit }'
 }
 
 # ============================================================
@@ -114,12 +117,12 @@ for SIZE in "${SIZES[@]}"; do
 
             # Warmup runs (not recorded)
             for (( w=0; w<WARMUP; w++ )); do
-                mpirun -np "$P" "$BINARY" "$ALGO" "$M" "$N" "$Q" "$P" > /dev/null 2>&1 || true
+                mpirun --oversubscribe -np "$P" "$BINARY" "$ALGO" "$M" "$N" "$Q" "$P" > /dev/null 2>&1 || true
             done
 
             # Timed repetitions
             for (( rep=1; rep<=REPEATS; rep++ )); do
-                if ! OUTPUT=$(mpirun -np "$P" "$BINARY" "$ALGO" "$M" "$N" "$Q" "$P" 2>&1); then
+                if ! OUTPUT=$(mpirun --oversubscribe -np "$P" "$BINARY" "$ALGO" "$M" "$N" "$Q" "$P" 2>&1); then
                     echo "ERROR algo=$ALGO  m=$M n=$N q=$Q  P=$P  rep=$rep (non-zero exit)"
                     echo "${ALGO},${M},${N},${Q},${P},${rep},ERROR" >> "$OUTFILE"
                     continue

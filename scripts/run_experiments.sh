@@ -58,7 +58,7 @@ OUTFILE="${OUTDIR}/results_${TIMESTAMP}.csv"
 is_perfect_square() {
     local n=$1
     local s
-    s=$(python3 -c "import math; s=math.isqrt($n); print(1 if s*s==$n else 0)")
+    s=$(python3 -c "import math; s=int(math.sqrt($n)); print(1 if s*s==$n else 0)")
     [[ "$s" == "1" ]]
 }
 

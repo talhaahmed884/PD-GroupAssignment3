@@ -1,5 +1,5 @@
 CXX      = mpicxx
-CXXFLAGS = -O2 -std=c++17
+CXXFLAGS = -O2 -std=c++11
 SRC_DIR  = src
 BIN      = mm
 CORRBIN  = correctness_check
@@ -28,7 +28,7 @@ SRC_SER = $(SRC_DIR)/mm_ser.cpp
 SRC_2D  = $(SRC_DIR)/mm_2d.cpp
 
 all-separate:
-	g++    -O2 -std=c++17 $(SRC_SER) -o mm_ser
-	$(CXX) $(CXXFLAGS)    $(SRC_2D)  -o mm_2d
+	$(CXX) $(CXXFLAGS) $(SRC_SER) -o mm_ser
+	$(CXX) $(CXXFLAGS) $(SRC_2D)  -o mm_2d
 
 .PHONY: all check-build clean all-separate
